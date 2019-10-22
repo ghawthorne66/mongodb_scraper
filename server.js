@@ -11,9 +11,9 @@ var db = require("./models");
 var PORT = process.env.PORT || 3000;
 
 // Connect to the Mongo DB
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
-
-// mongo ds337418.mlab.com:37418/heroku_5sw4zc0q -u <dbuser> -p <dbpassword
+process.env.MONGODB_URI || 
+"mongodb://user1:<password1@ds337418.mlab.com:37418/heroku_5sw4zc0q"
+// "mongodb://localhost/mongoHeadlines";
 
 // Initialize Express
 var app = express();
