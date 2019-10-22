@@ -11,9 +11,8 @@ var db = require("./models");
 var PORT = process.env.PORT || 3000;
 
 // Connect to the Mongo DB
-process.env.MONGODB_URI || 
-"mongodb://user1:<password1@ds337418.mlab.com:37418/heroku_5sw4zc0q"
-// "mongodb://localhost/mongoHeadlines";
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 // Initialize Express
 var app = express();
@@ -30,8 +29,6 @@ app.use(express.json());
 // Make public a static folder
 app.use(express.static("public"));
 
-// Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/unit18Populater", { useNewUrlParser: true });
 
 // Routes
 app.get("/", function(req, res) {
