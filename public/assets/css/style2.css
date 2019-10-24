@@ -5,10 +5,10 @@ html {
   
   body {
     margin-bottom: 80px;
-    background-image: url("../images/paper.png");
+    /* background-image: url("../images/nytimes.jpg"); */
   }
-  
-  .card a:not([href]):not([tabindex]).scrape-new {
+
+  .card a:not([href]):not([tabindex]).scrape-new { 
     color: #2196F3;
   }
   
@@ -47,7 +47,7 @@ html {
   
   .jumbotron .background-image {
     height: 100%;
-    background-image: url("../images/newspaper.jpg");
+    background-image: url("../images/nytimes.jpg");
     background-size: cover;
   }
   
@@ -166,5 +166,34 @@ html {
   .note.list-group-item .btn {
     position: relative;
     bottom: 10px;
-  }
+  } */
   
+
+
+
+.background-image{
+    background-color: red;
+    /* background-image: url("newspaper.jpg"); */
+    
+}
+
+@media (min-width: 1px) {
+    .display-1 {
+        font-size: 4rem
+    }
+}
+
+@media (min-width: 576px) {
+    .display-1{
+        font-size: 5rem
+    }
+    
+}
+
+Medium devices (tablets, 768px and up)*/
+ @media (min-width: 768px) {
+    .display-1 {
+        font-size: 6rem
+    }
+    
+} 

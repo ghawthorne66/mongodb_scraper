@@ -7,10 +7,19 @@ $(document).ready(function() {
     $(document).on("click", ".btn.save", handleArticleSave);
     $(document).on("click", ".scrape-new", handleArticleScrape);
     $(".clear").on("click", handleArticleClear);
+
+    //____________ADD  CALLS______________________________
+    $(document).on("click", ".btn.delete", handleArticleDelete);
+    $(document).on("click", ".btn.notes", handleArticleNotes);
+    $(document).on("click", ".btn.save", handleNoteSave);
+    $(document).on("click", ".btn.note-delete", handleNoteDelete);
+    $(".clear").on("click", handleArticleClear);
+    //____________END ADD CALLS
+
   
     function initPage() {
       // Run an AJAX request for any unsaved headlines
-      $.get("/api/headlines?saved=false").then(function(data) {
+      $.get("/api/headlines?saved=true").then(function(data) {
         articleContainer.empty();
         // If we have headlines, render them to the page
         if (data && data.length) {
@@ -81,8 +90,38 @@ $(document).ready(function() {
       );
       // Appending this data to the page
       articleContainer.append(emptyAlert);
+
     }
-  
+  //________________RENDER NOTES LIST_______________________
+  function renderNotesList(data) {
+    // This function handles rendering note list items to our notes modal
+    // Setting up an array of notes to render after finished
+    // Also setting up a currentNote variable to temporarily store each note
+    var notesToRender = [];
+    var currentNote;
+    if (!data.notes.length) {
+      // If we have no notes, just display a message explaining this
+      currentNote = $("<li class='list-group-item'>No notes for this article yet.</li>");
+      notesToRender.push(currentNote);
+    } else {
+      // If we do have notes, go through each one
+      for (var i = 0; i < data.notes.length; i++) {
+        // Constructs an li element to contain our noteText and a delete button
+        currentNote = $("<li class='list-group-item note'>")
+          .text(data.notes[i].noteText)
+          .append($("<button class='btn btn-danger note-delete'>x</button>"));
+        // Store the note id on the delete button for easy access when trying to delete
+        currentNote.children("button").data("_id", data.notes[i]._id);
+        // Adding our currentNote to the notesToRender array
+        notesToRender.push(currentNote);
+      }
+    }
+    // Now append the notesToRender to the note-container inside the note modal
+    $(".note-container").append(notesToRender);
+  }
+//______________END RENDER NOTES_______________________________
+
+
     function handleArticleSave() {
       // This function is triggered when the user wants to save an article
       // When we rendered the article initially, we attached a javascript object containing the headline id
@@ -111,6 +150,34 @@ $(document).ready(function() {
       });
     }
   
+//_____________________HANDLE ARTICLE DELETE____________________
+function handleArticleDelete() {
+  // This function handles deleting articles/headlines
+  // We grab the id of the article to delete from the card element the delete button sits inside
+  var articleToDelete = $(this)
+    .parents(".card")
+    .data();
+
+  // Remove card from page
+  $(this)
+    .parents(".card")
+    .remove();
+  // Using a delete method here just to be semantic since we are deleting an article/headline
+  $.ajax({
+    method: "DELETE",
+    url: "/api/headlines/" + articleToDelete._id
+  }).then(function(data) {
+    // If this works out, run initPage again which will re-render our list of saved articles
+    if (data.ok) {
+      initPage();
+    }
+  });
+}
+
+//_____________________END HANDLE ARTICLE DELETE____________________
+
+
+
     function handleArticleScrape() {
       // This function handles the user clicking any "scrape new article" buttons
       $.get("/api/fetch").then(function(data) {
