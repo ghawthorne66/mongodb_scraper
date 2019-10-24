@@ -1,38 +1,37 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const axios = require("axios");
-const cheerio = require("cheerio");
-const handlebars = require("express-handlebars")
-const controller = require('./controller')
+const exphbs = require("express-handlebars");
+const cheerio = require("cheerio")
 
-// Require all models
-const db = require("./model");
+//initialize Express app
+var app = express();
 
-const PORT = process.env.PORT || 3000;
+// app.use(bodyParser.urlencoded({extended: false}));
 
-// Connect to the Mongo DB
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+
+app.use(express.static(process.cwd() + "/public"));
+//Require set up handlebars
+app.engine("handlebars", exphbs({defaultLayout: "main"}));
+app.set("view engine", "handlebars");
+
+//connecting to MongoDB
+//mongoose.connect("mongodb://localhost/scraped_news");
+const MONGODB_URI =
+  process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
-// Initialize Express
-const app = express();
+var db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", function() {
+  console.log("Connected to Mongoose!");
+});
 
-app.engine("handlebars", handlebars({defaultLayout: "main"}));
-app.set("view engine", "handlebars")
-// Configure middleware
-
-// Parse request body as JSON
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-// Make public a static folder
-app.use(express.static("public"));
-
-
-// Routes
-
-controller(app)
-/
-// Start the server
-app.listen(PORT, function() {
-  console.log("App running on port " + PORT + "!");
+var routes = require("./controller/controller.js");
+app.use("/", routes);
+//Create localhost port
+var port = process.env.PORT || 3000;
+app.listen(port, function() {
+  console.log("Listening on PORT " + port);
 });

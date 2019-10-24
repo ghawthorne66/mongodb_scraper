@@ -1,12 +1,10 @@
-var express = require("express");
+const express = require("express");
 var router = express.Router();
-// var path = require("path");
+const request = require("request");
+const cheerio = require("cheerio");
 
-var request = require("request");
-var cheerio = require("cheerio");
-
-var Comment = require("../models/Comment.js");
-var Article = require("../models/Article.js");
+const Comment = require("../models/Comment.js");
+const Article = require("../models/Article.js");
 
 router.get("/", function(req, res) {
   res.redirect("/articles");
