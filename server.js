@@ -1,7 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const exphbs = require("express-handlebars");
-const cheerio = require("cheerio")
 
 //initialize Express app
 var app = express();
@@ -28,8 +27,11 @@ db.once("open", function() {
   console.log("Connected to Mongoose!");
 });
 
-var routes = require("./controller/controller.js");
-app.use("/", routes);
+const controller = require('./controller/controller.js')
+controller(app)
+
+// var routes = require("./controller/controller.js");
+// app.use("/", routes);
 //Create localhost port
 var port = process.env.PORT || 3000;
 app.listen(port, function() {

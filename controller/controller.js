@@ -1,58 +1,64 @@
-const express = require("express");
-var router = express.Router();
+
 const request = require("request");
 const cheerio = require("cheerio");
-
+const axios = require ("axios")
 const Comment = require("../models/Comment.js");
 const Article = require("../models/Article.js");
 
-router.get("/", function(req, res) {
+module.exports = app => {
+  app.get("/", function(req, res) {
   res.redirect("/articles");
 });
 
-router.get("/scrape", function(req, res) {
-  request("http://www.theverge.com", function(error, response, html) {
-    var $ = cheerio.load(html);
-    var titlesArray = [];
+app.get("/scrape", function(req, res) {
+    axios
+    .get("http://www.theverge.com")
+    .then(html => {
+      var $ = cheerio.load(html.data);
+      var titlesArray = [];
 
-    $(".c-entry-box--compact__title").each(function(i, element) {
-      var result = {};
+      $(".c-entry-box--compact__title").each(function(i, element) {
+        var result = {};
 
-      result.title = $(this)
-        .children("a")
-        .text();
-      result.link = $(this)
-        .children("a")
-        .attr("href");
+        result.title = $(this)
+          .children("a")
+          .text();
+        result.link = $(this)
+          .children("a")
+          .attr("href");
 
-      if (result.title !== "" && result.link !== "") {
-        if (titlesArray.indexOf(result.title) == -1) {
-          titlesArray.push(result.title);
+        if (result.title !== "" && result.link !== "") {
+          if (titlesArray.indexOf(result.title) == -1) {
+            titlesArray.push(result.title);
 
-          Article.count({ title: result.title }, function(err, test) {
-            if (test === 0) {
-              var entry = new Article(result);
+            Article.count({ title: result.title }, function(err, test) {
+              if (test === 0) {
+                var entry = new Article(result);
 
-              entry.save(function(err, doc) {
-                if (err) {
-                  console.log(err);
-                } else {
-                  console.log(doc);
-                }
-              });
-            }
-          });
+                entry.save(function(err, doc) {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    console.log(doc);
+                  }
+                });
+              }
+            });
+          } else {
+            console.log("Article already exists.");
+          }
         } else {
-          console.log("Article already exists.");
+          console.log("Not saved to DB, missing data");
         }
-      } else {
-        console.log("Not saved to DB, missing data");
-      }
-    });
-    res.redirect("/");
+      });
+      res.redirect("/");
+  })
+  .catch(error => {
+    res.status(500).json(error)
+  })
   });
-});
-router.get("/articles", function(req, res) {
+
+app.get("/articles", function(req, res) {
   Article.find()
     .sort({ _id: -1 })
     .exec(function(err, doc) {
@@ -65,7 +71,7 @@ router.get("/articles", function(req, res) {
     });
 });
 
-router.get("/articles-json", function(req, res) {
+app.get("/articles-json", function(req, res) {
   Article.find({}, function(err, doc) {
     if (err) {
       console.log(err);
@@ -75,7 +81,7 @@ router.get("/articles-json", function(req, res) {
   });
 });
 
-router.get("/clearAll", function(req, res) {
+app.get("/clearAll", function(req, res) {
   Article.remove({}, function(err, doc) {
     if (err) {
       console.log(err);
@@ -86,7 +92,7 @@ router.get("/clearAll", function(req, res) {
   res.redirect("/articles-json");
 });
 
-router.get("/readArticle/:id", function(req, res) {
+app.get("/readArticle/:id", function(req, res) {
   var articleId = req.params.id;
   var hbsObj = {
     article: [],
@@ -117,7 +123,7 @@ router.get("/readArticle/:id", function(req, res) {
       }
     });
 });
-router.post("/comment/:id", function(req, res) {
+app.post("/comment/:id", function(req, res) {
   var user = req.body.name;
   var content = req.body.comment;
   var articleId = req.params.id;
@@ -151,4 +157,4 @@ router.post("/comment/:id", function(req, res) {
   });
 });
 
-module.exports = router;
+}
